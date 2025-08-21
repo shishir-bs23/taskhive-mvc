@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using TaskHive.Models;
@@ -36,39 +37,47 @@ public class HomeController : Controller
     //     return View(allTasks);
     // }
 
-    public IActionResult Tasks(string searchString, string sortOrder)
+    public async Task<IActionResult> Tasks(string searchString, string sortOrder, int pageNumber)
     {
-        var allTasks = _context.Tasks.ToList();
+        var allTasks = from t in _context.Tasks
+               select t;
+
         if (!String.IsNullOrEmpty(searchString))
         {
-            allTasks = allTasks.Where(n => n.TaskTitle.Contains(searchString)).ToList();
+            allTasks = allTasks.Where(n => n.TaskTitle.Contains(searchString));
         }
-        allTasks = allTasks.OrderBy(e => e.TaskTitle).ToList();
-        allTasks = allTasks.OrderByDescending(e => e.TaskTitle).ToList();
+        allTasks = allTasks.OrderBy(e => e.TaskTitle);
+        allTasks = allTasks.OrderByDescending(e => e.TaskTitle);
 
         switch (sortOrder)
         {
 
             case "id_asc":
-                allTasks = allTasks.OrderBy(e => e.TaskId).ToList();
+                allTasks = allTasks.OrderBy(e => e.TaskId);
                 break;
 
             case "title_asc":
-                allTasks = allTasks.OrderBy(e => e.TaskTitle).ToList();
+                allTasks = allTasks.OrderBy(e => e.TaskTitle);
                 break;
 
             case "creation_date_asc":
-                allTasks = allTasks.OrderBy(e => e.TaskCreationDate).ToList();
+                allTasks = allTasks.OrderBy(e => e.TaskCreationDate);
                 break;
             case "due_date_asc":
-                allTasks = allTasks.OrderBy(e => e.TaskDueDate).ToList();
+                allTasks = allTasks.OrderBy(e => e.TaskDueDate);
                 break;
             default:
-                allTasks = allTasks.OrderBy(e => e.TaskId).ToList();
+                allTasks = allTasks.OrderBy(e => e.TaskId);
                 break;
        }
-
-        return View(allTasks);
+//Pagination
+        if (pageNumber < 1)
+        {
+            pageNumber = 1;
+        }
+        int pageSize = 5;
+        return View(await PaginatedList<TaskModel>.CreateAsync(allTasks,pageNumber,pageSize));
+        // return View(allTasks);
     }
 
     public IActionResult Create(int? id)

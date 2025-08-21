@@ -1,8 +1,9 @@
+@Model PaginatedList<TaskModel>
 @{
     ViewData["Title"]="Tasks";
     
 }
-@Model List<TaskModel>
+
     <div>
 <h1>
     @ViewData["Title"]
@@ -43,7 +44,7 @@
     </thead>
     <tbody>
         @{
-            foreach(var task in Model){
+            foreach(var task in Model.Items){
                  <tr onclick="location.href='@Url.Action("Details", "Home", new { id = task.TaskId })';" style="cursor:pointer;">
                 <td>
                         @task.TaskId
@@ -69,6 +70,40 @@
         }
     </tbody>
 </table>
+<div class="row">
+    <div class="col-md-6">
+    </div>
+    <div class="col-md-6">
+<nav>
+    <ul class="pagination justify-content-end">
+
+        <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+            <a class="page-link text-black" asp-route-pageNumber="1">First</a>
+        </li>
+
+        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+            <a class="page-link text-black" asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
+        </li>
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(Model.PageIndex == i ? "active" : "")">
+                <a class="page-link text-black" asp-route-pageNumber="@i">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+            <a class="page-link text-black" asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
+        </li>
+
+        <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+            <a class="page-link text-black" asp-route-pageNumber="@Model.TotalPages">Last</a>
+        </li>
+    </ul>
+</nav>
+
+    </div>
+</div>
     <a asp-controller="Home" asp-action="Create" class="btn btn-primary">Create Task</a>
   </div>
   </div>
