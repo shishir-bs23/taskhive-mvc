@@ -31,14 +31,36 @@ public class HomeController : Controller
         return View(allTasks);
     }
 
-    public IActionResult Create()
+    public IActionResult Create(int? id)
     {
+        if (id != null)
+        {
+            var taskInDb =_context.Tasks.SingleOrDefault(task => task.TaskId == id);
+            return View(taskInDb);
+        }
+       
         return View();
+    }
+
+    public IActionResult Detete(int id)
+    {
+        var taskInDb = _context.Tasks.SingleOrDefault(task => task.TaskId==id);
+        _context.Tasks.Remove(taskInDb);
+        _context.SaveChanges();
+        return RedirectToAction("Tasks");
     }
 
     public IActionResult CreateForm(TaskModel model)
     {
-        _context.Tasks.Add(model);
+        if (model.TaskId == 0)
+        {
+            _context.Tasks.Add(model);
+        }
+        else
+        {
+            _context.Tasks.Update(model);
+        }
+       
         _context.SaveChanges();
         return RedirectToAction("Tasks");
     }

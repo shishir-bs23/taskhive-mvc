@@ -9,8 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<TaskHiveDbContext>(
     options =>
     {
-        options.UseSqlServer("Server=localhost,1433;Database=TaskHiveMvcDb;User Id=sa;Password=MyStrongPass123!;TrustServerCertificate=True;");
-
+       options.UseSqlServer("Server=localhost,1433;Database=TaskHiveMvcDb;User Id=sa;Password=MyStrongPass123!;TrustServerCertificate=True;");
     }
 );
 
