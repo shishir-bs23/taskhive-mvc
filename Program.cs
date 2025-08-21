@@ -1,7 +1,18 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using TaskHive.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<TaskHiveDbContext>(
+    options =>
+    {
+        options.UseSqlServer("Server=localhost,1433;Database=TaskHiveMvcDb;User Id=sa;Password=MyStrongPass123!;TrustServerCertificate=True;");
+
+    }
+);
 
 var app = builder.Build();
 
