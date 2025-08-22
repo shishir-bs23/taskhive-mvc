@@ -1,109 +1,146 @@
-@Model PaginatedList<TaskModel>
+@model PaginatedList<TaskModel>
 @{
-    ViewData["Title"]="Tasks";
-    
+    ViewData["Title"] = "Tasks";
+    string currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
 }
 
-    <div>
-<h1>
-    @ViewData["Title"]
-</h1>
-<div class="row">
-    <div class="col-md-6">
-        <form asp-controller="Home" asp-action="Tasks">
-            <input name="searchString" type="search by name" class="form-control" aria-label="Search">
-            <button class="btn btn-dark" type="submit">Search</button>
-        </form>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-bold">@ViewData["Title"]</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a asp-controller="Home" asp-action="Create" class="btn btn-primary">
+                + Create Task
+            </a>
+        </div>
     </div>
 
-</div>
-</br>
-<table class="table">
-    <thead>
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <form asp-controller="Home" asp-action="Tasks" method="get" class="d-flex">
+                <input name="searchString" class="form-control me-2" type="search" placeholder="Search by task title..." value="@Context.Request.Query["searchString"]" />
+                <button class="btn btn-dark" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm rounded-4">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+
+<thead class="table-light">
     <tr>
-        <th>
-         <a asp-controller="Home" asp-action="Tasks" asp-route-sortOrder="id_asc" class="text-dark">Task Id</a>
-        </th>
-        <th>
-         <a asp-controller="Home" asp-action="Tasks" asp-route-sortOrder="title_asc" class="text-dark">Title</a>
-        </th>
-        <th>
-            <a asp-asp-controller="Home" asp-action="Tasks" asp-route-sortOrder="creation_date_asc" class="text-dark">
-            Creation Date
-            </a>
-        </th>
-         <th>
-                  <a asp-asp-controller="Home" asp-action="Tasks" asp-route-sortOrder="due_date_asc" class="text-dark">
-            Due Date
-            </a>
-        </th>
-        <th>
-            Status
-        </th>
-    </tr>
-    </thead>
-    <tbody>
         @{
-            foreach(var task in Model.Items){
-                 <tr onclick="location.href='@Url.Action("Details", "Home", new { id = task.TaskId })';" style="cursor:pointer;">
-                <td>
-                        @task.TaskId
-                    </td>
-                     <td>
-                        @task.TaskTitle
-                    </td>
-                    <td>
-                        @task.TaskCreationDate
-                    </td>
-                     <td>
-                        @task.TaskDueDate
-                    </td>
-                    <td>
-                        @task.TaskStatus
-                    </td>
-                    <td>
-                        <a asp-controller="Home" asp-action="Create" asp-route-id="@task.TaskId">Edit</a>
-                        <a asp-controller="Home" asp-action="Detete" asp-route-id="@task.TaskId">Delete</a>
-                    </td>
-                </tr>
-            }
+            Func<string, string> ToggleSort = column =>
+            {
+                var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
+                if (currentSort == column + "_asc") return column + "_desc";
+                return column + "_asc";
+            };
+
+            Func<string, string> SortArrow = column =>
+            {
+                var currentSort = ViewData["CurrentSort"]?.ToString() ?? "";
+                return currentSort == column + "_asc" ? "↑" : currentSort == column + "_desc" ? "↓" : "";
+            };
         }
-    </tbody>
-</table>
-<div class="row">
-    <div class="col-md-6">
+
+        <th>
+            <a asp-action="Tasks" asp-route-sortOrder="@ToggleSort("id")" class="text-decoration-none text-dark">
+                Task Id @SortArrow("id")
+            </a>
+        </th>
+        <th>
+            <a asp-action="Tasks" asp-route-sortOrder="@ToggleSort("title")" class="text-decoration-none text-dark">
+                Title @SortArrow("title")
+            </a>
+        </th>
+        <th>
+            <a asp-action="Tasks" asp-route-sortOrder="@ToggleSort("creation_date")" class="text-decoration-none text-dark">
+                Creation Date @SortArrow("creation_date")
+            </a>
+        </th>
+        <th>
+            <a asp-action="Tasks" asp-route-sortOrder="@ToggleSort("due_date")" class="text-decoration-none text-dark">
+                Due Date @SortArrow("due_date")
+            </a>
+        </th>
+        <th>Status</th>
+        <th class="text-center">Actions</th>
+    </tr>
+</thead>
+
+
+
+                <tbody>
+                    @if (Model.Items != null && Model.Items.Any())
+                    {
+                        foreach (var task in Model.Items)
+                        {
+                            <tr onclick="location.href='@Url.Action("Details", "Home", new { id = task.TaskId })';" style="cursor:pointer;">
+                                <td>@task.TaskId</td>
+                                <td>@task.TaskTitle</td>
+                                <td>@task.TaskCreationDate.ToString("yyyy-MM-dd")</td>
+                                <td>@task.TaskDueDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    @if (task.TaskStatus == TaskHive.Enums.Status.Completed)
+                                    {
+                                        <span class="badge bg-success">Completed</span>
+                                    }
+                                    else if (task.TaskStatus == TaskHive.Enums.Status.Pending)
+                                    {
+                                        <span class="badge bg-warning text-dark">Pending</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@task.TaskStatus</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <a asp-controller="Home" asp-action="Create" asp-route-id="@task.TaskId" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+                                    <a asp-controller="Home" asp-action="Delete" asp-route-id="@task.TaskId" class="btn btn-sm btn-outline-danger">Delete</a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center text-muted">No tasks found</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-    <div class="col-md-6">
-<nav>
-    <ul class="pagination justify-content-end">
 
-        <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
-            <a class="page-link text-black" asp-route-pageNumber="1">First</a>
-        </li>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                        <a class="page-link" asp-route-pageNumber="1">First</a>
+                    </li>
+                    <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
+                    </li>
 
-        <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
-            <a class="page-link text-black" asp-route-pageNumber="@(Model.PageIndex - 1)">Previous</a>
-        </li>
+                    @for (int i = 1; i <= Model.TotalPages; i++)
+                    {
+                        <li class="page-item @(Model.PageIndex == i ? "active" : "")">
+                            <a class="page-link" asp-route-pageNumber="@i">@i</a>
+                        </li>
+                    }
 
-        @for (int i = 1; i <= Model.TotalPages; i++)
-        {
-            <li class="page-item @(Model.PageIndex == i ? "active" : "")">
-                <a class="page-link text-black" asp-route-pageNumber="@i">@i</a>
-            </li>
-        }
-
-        <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
-            <a class="page-link text-black" asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
-        </li>
-
-        <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
-            <a class="page-link text-black" asp-route-pageNumber="@Model.TotalPages">Last</a>
-        </li>
-    </ul>
-</nav>
-
+                    <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" asp-route-pageNumber="@(Model.PageIndex + 1)">Next</a>
+                    </li>
+                    <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                        <a class="page-link" asp-route-pageNumber="@Model.TotalPages">Last</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </div>
 </div>
-    <a asp-controller="Home" asp-action="Create" class="btn btn-primary">Create Task</a>
-  </div>
-  </div>

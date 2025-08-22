@@ -1,9 +1,7 @@
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using TaskHive.Models;
-
+using Microsoft.AspNetCore.Authorization;
 namespace TaskHive.Controllers;
 
 public class HomeController : Controller
@@ -17,6 +15,7 @@ public class HomeController : Controller
         _context = context;
     }
 
+    [Authorize]
     public IActionResult Index()
     {
         return View();
@@ -27,18 +26,9 @@ public class HomeController : Controller
         return View();
     }
 
-    // public IActionResult Tasks(string searchString)
-    // {
-    //     var allTasks = _context.Tasks.ToList();
-    //     if (!String.IsNullOrEmpty(searchString))
-    //     {
-    //         allTasks = allTasks.Where(n => n.TaskTitle.Contains(searchString)).ToList();
-    //     }
-    //     return View(allTasks);
-    // }
-
     public async Task<IActionResult> Tasks(string searchString, string sortOrder, int pageNumber)
     {
+        ViewData["CurrentSort"] = sortOrder;
         var allTasks = from t in _context.Tasks
                select t;
 
@@ -77,7 +67,6 @@ public class HomeController : Controller
         }
         int pageSize = 5;
         return View(await PaginatedList<TaskModel>.CreateAsync(allTasks,pageNumber,pageSize));
-        // return View(allTasks);
     }
 
     public IActionResult Create(int? id)
