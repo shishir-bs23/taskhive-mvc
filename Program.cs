@@ -22,6 +22,8 @@ builder.Services.AddIdentity<Users, IdentityRole>(options=>
 builder.Services.AddDbContext<TaskHiveDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddSingleton<EmailSender>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
