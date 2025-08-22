@@ -2,7 +2,48 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome to TaskHive</h1>
-    <a asp-controller="Home" asp-action="Create" class="btn btn-primary">Create Task</a>
-  </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+     
+            <div class="card shadow-lg p-5 rounded-4 bg-light">
+                <h1 class="display-4 mb-3 text-primary">Welcome to TaskHive</h1>
+                <p class="lead mb-4">
+                    Manage your tasks efficiently and stay organized with TaskHive. 
+                    Create, track, and update tasks all in one place.
+                </p>
+                <a asp-controller="Home" asp-action="Create" class="btn btn-primary btn-lg">
+                    Create Task
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row mt-5 text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title">Organize</h5>
+                    <p class="card-text">Keep all your tasks organized in one place.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title">Track Progress</h5>
+                    <p class="card-text">Monitor the status of your tasks easily.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body">
+                    <h5 class="card-title">Collaborate</h5>
+                    <p class="card-text">Work with your team efficiently on shared tasks.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
